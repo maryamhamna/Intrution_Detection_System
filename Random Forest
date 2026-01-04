@@ -1,0 +1,52 @@
+#random forest
+ import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OneHotEncoder, MinMaxScaler
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+from sklearn.metrics import accuracy_score, classification_report
+from sklearn.model_selection import GridSearchCV
+
+
+
+
+
+
+df = pd.read_csv('/content/mydata.csv')  # Read CSV
+df.head()  # Display first few rows
+
+
+X = df.drop(columns=["Blacklisted"])  # Features
+y = df["Blacklisted"]  # Target variable
+
+
+categorical_cols = ["type", "Risk Level", "Hosting Country"]
+numeric_cols = ["Detection Confidence"]
+
+
+preprocessor = ColumnTransformer([
+    ('onehot', OneHotEncoder(handle_unknown='ignore'), categorical_cols),
+    ('scaler', MinMaxScaler(), numeric_cols)
+])
+
+
+rf_pipeline = Pipeline([
+    ('preprocess', preprocessor),
+    ('model', RandomForestClassifier(n_estimators=100, max_depth=20, random_state=42))
+])
+
+
+X_train_sample, _, y_train_sample, _ = train_test_split(X_train, y_train, test_size=0.8, random_state=42)
+rf_pipeline.fit(X_train_sample, y_train_sample)  # Train on a smaller set
+
+
+y_pred = rf_pipeline.predict(X_test)
+
+
+accuracy = accuracy_score(y_test, y_pred)
+report = classification_report(y_test, y_pred)
+
+
+print(f"Random Forest Accuracy: {accuracy:.4f}")
+print("Classification Report:\n", report)
