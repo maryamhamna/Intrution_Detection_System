@@ -1,0 +1,47 @@
+import streamlit as st
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Load the extended dataset
+file_path = r"C:\Users\imran\Desktop\mydata.csv"  # Path to dataset
+df = pd.read_csv(file_path)
+
+st.title("🔍 Threat Detection System")
+
+# User input for website URL
+url_input = st.text_input("Enter Website URL:", "")
+
+if st.button("Analyze Threat"):
+    # Check if URL exists in the dataset
+    threat_data = df[df["url"] == url_input]
+
+    if threat_data.empty:
+        st.warning("⚠ No information found for the given URL.")
+    else:
+        st.subheader("Threat Analysis Result")
+
+        # Display threat details in text form
+        st.write(f"**Website URL:** {threat_data.iloc[0]['url']}")
+        st.write(f"**Threat Type:** {threat_data.iloc[0]['type']}")
+        st.write(f"**Risk Level:** {threat_data.iloc[0]['Risk Level']}")
+        st.write(f"**IP Address:** {threat_data.iloc[0]['IP Address']}")
+        st.write(f"**Hosting Country:** {threat_data.iloc[0]['Hosting Country']}")
+        st.write(f"**Detection Confidence:** {threat_data.iloc[0]['Detection Confidence']}")
+        st.write(f"**Blacklisted:** {threat_data.iloc[0]['Blacklisted']}")
+
+        # Risk Level Bar Chart
+        st.subheader("📊 Risk Level Distribution")
+        plt.figure(figsize=(6, 3))
+        sns.countplot(x="Risk Level", data=df, palette="coolwarm")
+        st.pyplot(plt)
+
+        # Threat Feature Correlation Heatmap
+        st.subheader("📈 Threat Feature Correlation Heatmap")
+        plt.figure(figsize=(6, 4))
+        sns.heatmap(df.select_dtypes(include=["number"]).corr(), annot=True, cmap="viridis")
+        st.pyplot(plt)
+
+        # Report Danger Button
+        if st.button("⚠ Report Danger"):
+            st.error("🚨 Threat reported! Authorities will be notified.")
